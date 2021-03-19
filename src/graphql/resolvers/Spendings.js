@@ -5,7 +5,8 @@
 export default {
 	Query: {
 		getHello() {
-			return console.log('Hello World');
+			const message = 'Hello World';
+			return message;
 		},
 	},
 };
