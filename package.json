@@ -4,9 +4,43 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon src/index.js --exec babel-node",
+    "build": "babel src -d dist --source-maps",
+    "serve": "node dist/index.js",
+    "test": "nyc --reporter=html mocha src/test --exit",
+    "clean": "rimraf .nyc_output coverage dist"
   },
   "keywords": [],
   "author": "Josue Rodriguez <josuerodcat90@gmail.com> (https://github.com/josuerodcat90)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server-express": "^2.21.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-graphql": "^0.12.0",
+    "graphql": "^15.5.0",
+    "graphql-tools": "^7.0.4",
+    "jsonwebtoken": "^8.5.1",
+    "merge-graphql-schemas": "^1.7.8",
+    "moment": "^2.29.1",
+    "mongoose": "^5.12.1",
+    "mongoose-autopopulate": "^0.12.3",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.13.10",
+    "@babel/core": "^7.13.10",
+    "@babel/node": "^7.13.10",
+    "@babel/polyfill": "^7.12.1",
+    "@babel/preset-env": "^7.13.10",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "mocha": "^8.3.2",
+    "nodemon": "^2.0.7",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2"
+  }
 }
