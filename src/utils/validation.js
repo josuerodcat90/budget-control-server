@@ -1,6 +1,5 @@
 export const validateUserRegisterInput = (
-	firstname,
-	lastname,
+	name,
 	email,
 	password,
 	confirmPassword
@@ -8,12 +7,8 @@ export const validateUserRegisterInput = (
 	const errors = {};
 
 	///verify if the fields are empty
-	if (firstname.trim() === '') {
-		errors.firstname = 'Firstname field must not be empty';
-	}
-
-	if (lastname.trim() === '') {
-		errors.lastname = 'Lastname field must not be empty';
+	if (name.trim() === '') {
+		errors.name = 'Name field must not be empty';
 	}
 
 	if (email.trim() === '') {

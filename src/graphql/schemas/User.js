@@ -5,10 +5,11 @@ export default gql`
 		id: ID!
 		name: String!
 		email: String!
+		token: String!
 	}
 
 	type Query {
-		getUser(id: ID!): User!
+		getUser(userId: ID!): User!
 		getUsers: [User]
 	}
 
@@ -19,9 +20,15 @@ export default gql`
 		confirmPassword: String!
 	}
 
+	input shortUserInput {
+		name: String!
+		email: String!
+	}
+
 	type Mutation {
 		createUser(input: userInput!): User!
-		updateUser(input: userInput!): User!
-		deleteUser(id: ID!): String!
+		login(email: String!, password: String!): User!
+		updateUser(userId: ID!, input: shortUserInput!): User!
+		deleteUser(userId: ID!): String!
 	}
 `;
