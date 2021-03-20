@@ -1,22 +1,19 @@
 import { Schema, model } from 'mongoose';
 
-const budgetSchema = new Schema(
-	{
-		name: {
-			type: String,
-			required: true,
-			trim: true,
-		},
-		quantity: {
-			type: Number,
-			required: true,
-			default: 0,
-		},
+const budgetSchema = new Schema({
+	name: {
+		type: String,
+		required: true,
+		trim: true,
 	},
-	{
-		timestamps: true,
-	}
-);
+	quantity: {
+		type: Number,
+		required: true,
+		default: 0,
+	},
+	createdAt: String,
+	updatedAt: String,
+});
 
 budgetSchema.set('toJSON', {
 	virtuals: true,
