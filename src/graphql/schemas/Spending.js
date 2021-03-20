@@ -8,9 +8,23 @@ export default gql`
 		spended: Int!
 		toBudget: Budget!
 		creator: User!
+		createdAt: String!
+		updatedAt: String!
 	}
 
 	type Query {
 		getHello: String!
+	}
+
+	input spendingInput {
+		name: String!
+		date: String!
+		spended: Int!
+		toBudget: ID!
+		creator: ID!
+	}
+
+	type Mutation {
+		createSpending(input: spendingInput!): Spending!
 	}
 `;
