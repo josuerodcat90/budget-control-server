@@ -16,13 +16,6 @@ const userSchema = new Schema({
 		required: true,
 		trim: true,
 	},
-	isCollab: [
-		{
-			type: Schema.Types.ObjectId,
-			ref: 'Budget',
-			autopopulate: true,
-		},
-	],
 	createdAt: String,
 	updatedAt: String,
 });
@@ -34,7 +27,5 @@ userSchema.set('toJSON', {
 		delete ret._id;
 	},
 });
-
-userSchema.plugin(require('mongoose-autopopulate'));
 
 export default model('User', userSchema);
