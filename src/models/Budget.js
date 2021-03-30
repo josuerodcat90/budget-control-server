@@ -11,6 +11,18 @@ const budgetSchema = new Schema({
 		required: true,
 		default: 0,
 	},
+	owner: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		autopopulate: true,
+	},
+	collab: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			autopopulate: true,
+		},
+	],
 	createdAt: String,
 	updatedAt: String,
 });
@@ -22,5 +34,7 @@ budgetSchema.set('toJSON', {
 		delete ret._id;
 	},
 });
+
+budgetSchema.plugin(require('mongoose-autopopulate'));
 
 export default model('Budget', budgetSchema);
