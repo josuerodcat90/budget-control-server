@@ -6,6 +6,8 @@ export default gql`
 		name: String!
 		email: String!
 		token: String!
+		createdAt: String!
+		updatedAt: String
 	}
 
 	type Query {

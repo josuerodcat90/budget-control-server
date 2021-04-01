@@ -14,6 +14,18 @@ export default gql`
 
 	type Query {
 		getHello: String!
+		getSpendings(userID: ID!): [Spending]
+		getSpending(spendingId: ID!): Spending!
+		getSpendingsByRange(
+			userID: ID!
+			budgetID: ID!
+			input: rangeInput!
+		): [Spending]
+	}
+
+	input rangeInput {
+		startDate: String!
+		endDate: String!
 	}
 
 	input spendingInput {
@@ -21,10 +33,10 @@ export default gql`
 		date: String!
 		spended: Int!
 		toBudget: ID!
-		creator: ID!
 	}
 
 	type Mutation {
 		createSpending(input: spendingInput!): Spending!
+		deleteSpending(spendingID: ID!, budgetID: ID!): String!
 	}
 `;

@@ -5,13 +5,15 @@ export default gql`
 		id: ID!
 		name: String!
 		quantity: Int!
+		owner: ID!
+		collab: [ID]
 		createdAt: String!
-		updatedAt: String!
+		updatedAt: String
 	}
 
 	type Query {
 		getBudget(id: ID!): Budget!
-		getBudgets: [Budget]
+		getBudgets(ownerId: ID!, collabId: ID): [Budget]
 	}
 
 	input budgetInput {
@@ -21,7 +23,8 @@ export default gql`
 
 	type Mutation {
 		createBudget(input: budgetInput!): Budget!
-		updateBudget(input: budgetInput!): Budget!
-		deleteBudget(id: ID!): String!
+		updateBudget(budgetId: ID!, input: budgetInput!): Budget!
+		addCollaborator(budgetId: ID!, collab: ID!): String!
+		deleteBudget(budgetId: ID!): String!
 	}
 `;
