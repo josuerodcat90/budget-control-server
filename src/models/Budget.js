@@ -16,13 +16,12 @@ const budgetSchema = new Schema({
 		ref: 'User',
 		autopopulate: true,
 	},
-	collab: [
-		{
-			type: Schema.Types.ObjectId,
-			ref: 'User',
-			autopopulate: true,
-		},
-	],
+	collab: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		autopopulate: true,
+		default: null,
+	},
 	createdAt: String,
 	updatedAt: String,
 });
