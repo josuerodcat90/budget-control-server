@@ -5,6 +5,7 @@ export default gql`
 		id: ID!
 		name: String!
 		quantity: Int!
+		spended: Int!
 		owner: User!
 		collab: User
 		createdAt: String!
