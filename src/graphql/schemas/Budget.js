@@ -4,8 +4,8 @@ export default gql`
 	type Budget {
 		id: ID!
 		name: String!
-		quantity: Int!
-		spended: Int!
+		quantity: Float!
+		spended: Float!
 		owner: User!
 		collab: User
 		createdAt: String!
@@ -19,7 +19,7 @@ export default gql`
 
 	input budgetInput {
 		name: String!
-		quantity: Int!
+		quantity: Float!
 	}
 
 	type Mutation {

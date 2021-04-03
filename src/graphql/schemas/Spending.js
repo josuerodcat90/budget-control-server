@@ -4,23 +4,19 @@ export default gql`
 	type Spending {
 		id: ID!
 		name: String!
+		description: String
 		date: String!
-		spended: Int!
+		spended: Float!
 		toBudget: Budget!
 		creator: User!
 		createdAt: String!
-		updatedAt: String!
+		updatedAt: String
 	}
 
 	type Query {
-		getHello: String!
-		getSpendings(userID: ID!): [Spending]
+		getSpendings: [Spending]
 		getSpending(spendingId: ID!): Spending!
-		getSpendingsByRange(
-			userID: ID!
-			budgetID: ID!
-			input: rangeInput!
-		): [Spending]
+		getSpendingsByRange(budgetId: ID!, input: rangeInput!): [Spending]
 	}
 
 	input rangeInput {
@@ -30,8 +26,9 @@ export default gql`
 
 	input spendingInput {
 		name: String!
+		description: String
 		date: String!
-		spended: Int!
+		spended: Float!
 		toBudget: ID!
 	}
 
