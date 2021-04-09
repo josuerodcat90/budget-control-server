@@ -16,6 +16,11 @@ const budgetSchema = new Schema({
 		required: true,
 		default: 0,
 	},
+	currency: {
+		type: String,
+		required: true,
+		default: '€',
+	},
 	owner: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
@@ -26,6 +31,10 @@ const budgetSchema = new Schema({
 		ref: 'User',
 		autopopulate: true,
 		default: null,
+	},
+	status: {
+		type: String,
+		default: 'Active',
 	},
 	createdAt: String,
 	updatedAt: String,
