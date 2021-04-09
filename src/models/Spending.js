@@ -6,6 +6,10 @@ const spendingSchema = new Schema({
 		required: true,
 		trim: true,
 	},
+	description: {
+		type: String,
+		trim: true,
+	},
 	date: {
 		type: String,
 		required: true,
