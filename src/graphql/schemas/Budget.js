@@ -6,25 +6,35 @@ export default gql`
 		name: String!
 		quantity: Float!
 		spended: Float!
+		currency: String!
 		owner: User!
 		collab: User
+		status: String!
 		createdAt: String!
 		updatedAt: String
 	}
 
 	type Query {
-		getBudget(id: ID!): Budget!
-		getBudgets: [Budget]
+		getBudget(budgetId: ID!): Budget!
+		getBudgets: [Budget]!
 	}
 
 	input budgetInput {
 		name: String!
 		quantity: Float!
+		currency: String!
+	}
+
+	input editBudgetInput {
+		name: String!
+		quantity: Float!
+		currency: String!
+		status: String!
 	}
 
 	type Mutation {
 		createBudget(input: budgetInput!): Budget!
-		updateBudget(budgetId: ID!, input: budgetInput!): Budget!
+		updateBudget(budgetId: ID!, input: editBudgetInput!): Budget!
 		addCollaborator(budgetId: ID!, collabEmail: String!): Budget!
 		removeCollaborator(budgetId: ID!, collabEmail: String!): Budget!
 		deleteBudget(budgetId: ID!): String!
