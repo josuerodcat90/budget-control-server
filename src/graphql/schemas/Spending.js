@@ -16,6 +16,7 @@ export default gql`
 	type Query {
 		getSpendings: [Spending]
 		getSpending(spendingId: ID!): Spending!
+		getSpendingsByBudget(budgetId: ID!): [Spending]!
 		getSpendingsByRange(budgetId: ID!, input: rangeInput!): [Spending]
 	}
 
