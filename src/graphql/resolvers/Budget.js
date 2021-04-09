@@ -1,5 +1,6 @@
 import Budget from '../../models/Budget';
 import User from '../../models/User';
+import Spending from '../../models/Spending';
 import dayjs from 'dayjs';
 import checkAuth from '../../utils/checkAuth';
 import { AuthenticationError, UserInputError } from 'apollo-server-core';
@@ -187,7 +188,7 @@ export default {
 					return collabBudget;
 				} else {
 					throw new AuthenticationError(
-						'Action not allowed, to add a collaborator you must be the owner of this Budget.'
+						'Action not allowed, to remove a collaborator you must be the owner of this Budget.'
 					);
 				}
 			} catch (err) {
@@ -196,20 +197,28 @@ export default {
 		},
 		async deleteBudget(_, { budgetId }, context) {
 			const user = checkAuth(context);
+			const budget = await Budget.findOne(
+				{ _id: budgetId },
+				{},
+				{ autopopulate: false }
+			);
+			const spendings = await Spending.find(
+				{ toBudget: budgetId },
+				{},
+				{ autopopulate: false }
+			);
+
+			if (!budget) {
+				throw new UserInputError(
+					`Can't find the Budget, be sure the Budget was not deleted before.`
+				);
+			} else if (spendings.length >= 1) {
+				throw new UserInputError(
+					`Can't delete the required budget, because it has Spending records created with it, try to change the status to 'Cancelled' instead, to prevent inconsistent data.`
+				);
+			}
 
 			try {
-				const budget = await Budget.findOne(
-					{ _id: budgetId },
-					{},
-					{ autopopulate: false }
-				);
-
-				if (!budget) {
-					throw new UserInputError(
-						`Can't find the Budget, be sure the Budget was not deleted before.`
-					);
-				}
-
 				if (user.id == budget.owner) {
 					await budget.delete();
 					return 'Budget deleted succesfully.';
