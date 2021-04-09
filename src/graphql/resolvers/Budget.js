@@ -8,16 +8,55 @@ export default {
 	Query: {
 		async getBudgets(_, {}, context) {
 			const user = checkAuth(context);
-			if (user) {
+
+			if (!user) {
+				throw new AuthenticationError(
+					'Action not allowed, you must be logged on or have a valid token to find Budgets.'
+				);
+			}
+
+			try {
 				const budgets = await Budget.find({
 					$or: [{ owner: user.id }, { collab: user.id }],
 				});
 
+				if (budgets.length < 1) {
+					throw new UserInputError(
+						`Can't find any Budgets, be sure you've created one or more before search.`
+					);
+				}
+
 				return budgets;
-			} else {
+			} catch (err) {
+				throw new Error(err);
+			}
+		},
+		async getBudget(_, { budgetId }, context) {
+			const user = checkAuth(context);
+
+			if (!user) {
 				throw new AuthenticationError(
 					'Action not allowed, you must be logged on or have a valid token to find Budgets.'
 				);
+			}
+
+			try {
+				const budget = await Budget.findOne({
+					$or: [
+						{ $and: [{ _id: budgetId }, { owner: user.id }] },
+						{ $and: [{ _id: budgetId }, { collab: user.id }] },
+					],
+				});
+
+				if (!budget) {
+					throw new UserInputError(
+						`Can't find any Budget, be sure you're searching a existing or non-deleted one.`
+					);
+				}
+
+				return budget;
+			} catch (err) {
+				throw new Error(err);
 			}
 		},
 	},
@@ -116,7 +155,7 @@ export default {
 				{},
 				{ autopopulate: false }
 			);
- 
+
 			try {
 				const collab = await User.findOne(
 					{ email: collabEmail },
