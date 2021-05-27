@@ -38,5 +38,6 @@ export default gql`
 		addCollaborator(budgetId: ID!, collabEmail: String!): Budget!
 		removeCollaborator(budgetId: ID!, collabEmail: String!): Budget!
 		deleteBudget(budgetId: ID!): String!
+		returnLeftover(fromId: ID!): String!
 	}
 `;

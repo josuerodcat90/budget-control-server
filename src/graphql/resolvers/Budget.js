@@ -231,5 +231,65 @@ export default {
 				throw new Error(err);
 			}
 		},
+		async returnLeftover(_, { fromId }, context) {
+			const user = checkAuth(context);
+			const fromBudget = await Budget.findOne(
+				{ _id: fromId },
+				{},
+				{ autopopulate: false }
+			);
+			const general = await Budget.findOne(
+				{ $and: [{ owner: user.id }, { name: 'General' }] },
+				{},
+				{ autopopulate: false }
+			);
+
+			if (!user) {
+				throw new AuthenticationError(
+					'Action not allowed, you must be logged on or have a valid token to transfer leftovers to General Budget.'
+				);
+			} else if (!fromBudget || !general) {
+				throw new UserInputError(
+					`Can't find one of both Budgets, be sure no one of it was deleted before.`
+				);
+			}
+
+			try {
+				if (user.id == fromBudget.owner && user.id == general.owner) {
+					const leftover = fromBudget.quantity - fromBudget.spended;
+
+					const addLeftoverSpending = new Spending({
+						name: 'Leftover Return',
+						description: `Return of '${fromBudget.currency}.${leftover}' from Budget: '${fromBudget.name}', to Budget: 'General' as Leftover`,
+						date: dayjs(date).format('YYYY-MM-DD'),
+						toBudget: fromId,
+						spended: leftover,
+						creator: user.id,
+						createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+					});
+
+					await addLeftoverSpending.save();
+
+					await fromBudget.update({
+						spended: fromBudget.spended + leftover,
+						status: 'Completed',
+						updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+					});
+
+					await general.update({
+						spended: general.spended - leftover,
+						updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+					});
+
+					return `The transfer of ${fromBudget.currency}.${leftover} from Budget: '${fromBudget.name}', to Budget: 'General' as Leftover was successful`;
+				} else {
+					throw new AuthenticationError(
+						'Action not allowed, you must be the owner of both Budgets to transfer leftovers to General Budget.'
+					);
+				}
+			} catch (err) {
+				throw new Error(err);
+			}
+		},
 	},
 };
