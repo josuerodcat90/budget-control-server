@@ -64,42 +64,139 @@ export default {
 	Mutation: {
 		async createBudget(_, { input }, context) {
 			const user = checkAuth(context);
+			const general = await Budget.findOne(
+				{ $and: [{ name: 'General' }, { owner: user.id }] },
+				{},
+				{ autopopulate: false }
+			);
+			const existingbudget = await Budget.findOne(
+				{
+					$and: [
+						{
+							name: {
+								$regex: new RegExp('^' + input.name.toLowerCase() + '$', 'i'),
+							},
+						},
+						{ owner: user.id },
+					],
+				},
+				{},
+				{ autopopulate: false }
+			);
 
 			if (!user) {
 				throw new AuthenticationError(
 					'Action not allowed, you must be logged on or have a valid token to create a Budget.'
 				);
-			} else {
-				const newBudget = new Budget({
-					...input,
-					owner: user.id,
-					createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
-				});
+			} else if (!general) {
+				throw new UserInputError(
+					`Can't find the 'General' Budget, be sure you're searching a existing or non-deleted one.`
+				);
+			} else if (existingbudget) {
+				throw new UserInputError(
+					`Can't create ${input.name} Budget, because you can't create another one with the same name.`
+				);
+			}
 
-				const budget = await newBudget.save();
+			try {
+				const remaining = general.quantity - general.spended;
 
-				return budget;
+				if (input.name.toLowerCase() === 'general') {
+					throw new UserInputError(
+						`Can't create 'General' Budget, because it's already created by default, and you can't create another one with the same name.`
+					);
+				} else if (input.quantity <= remaining) {
+					const newBudget = new Budget({
+						...input,
+						currency: general.currency,
+						owner: user.id,
+						createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+					});
+
+					const newBudgetSpending = new Spending({
+						name: `Created ${input.name} Budget.`,
+						description: `New Budget created from General.`,
+						date: dayjs().format('YYYY-MM-DD'),
+						toBudget: general.id,
+						spended: input.quantity,
+						creator: user.id,
+						createdAt: dayjs().format('YYYY-MM-DD HH:mm'),
+					});
+
+					await general.update({
+						spended: general.spended + input.quantity,
+						updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
+					});
+
+					await newBudgetSpending.save();
+
+					const budget = await newBudget.save();
+
+					return budget;
+				} else {
+					throw new UserInputError(
+						`The required quantity of the new Budget exceeds the remaining quantity of 'General' Budget.`
+					);
+				}
+			} catch (err) {
+				throw new Error(err);
 			}
 		},
 		async updateBudget(_, { budgetId, input }, context) {
 			const owner = checkAuth(context);
+			const general = await Budget.findOne(
+				{ $and: [{ name: 'General' }, { owner: user.id }] },
+				{},
+				{ autopopulate: false }
+			);
 			const budget = await Budget.findOne(
 				{ _id: budgetId },
 				{},
 				{ autopopulate: false }
 			);
+			const remaining = general.quantity - general.spended;
+			const lessOrMore = (budget, input) => {
+				let res;
+				if (input.quantity > budget.quantity) {
+					res = 'More';
+					return res;
+				} else if (input.quantity < budget.quantity) {
+					res = 'Less';
+					return res;
+				} else {
+					res = 'Equal';
+					return res;
+				}
+			};
+
+			lessOrMore();
+
+			if (!owner) {
+				throw new AuthenticationError(
+					'Action not allowed, you must be logged on or have a valid token to create a Budget.'
+				);
+			} else if (!budget) {
+				throw new UserInputError(
+					`Can't find the 'General' Budget, be sure you're searching a existing or non-deleted one.`
+				);
+			} else if (budget.name.toLowerCase() === 'general') {
+				throw new UserInputError(`You can't edit the 'General' Budget.`);
+			} else if (remaining < input.quantity) {
+				throw new UserInputError(
+					`You can't change the Budget's quantity, because 'General' Budget has less funds than the required quantity.`
+				);
+			}
 
 			try {
 				if (owner.id == budget.owner) {
-					const updatedBudget = await Budget.findOneAndUpdate(
-						{ _id: budgetId },
+					await budget.update(
 						{
 							...input,
 							updatedAt: dayjs().format('YYYY-MM-DD HH:mm'),
 						},
 						{ new: true }
 					);
-					return updatedBudget;
+					return budget;
 				} else {
 					throw new AuthenticationError(
 						'Action not allowed, to update you must be the owner of this Budget.'
@@ -208,10 +305,16 @@ export default {
 				{ autopopulate: false }
 			);
 
-			if (!budget) {
+			if (!user) {
+				throw new AuthenticationError(
+					'Action not allowed, you must be logged on or have a valid token to create a Budget.'
+				);
+			} else if (!budget) {
 				throw new UserInputError(
 					`Can't find the Budget, be sure the Budget was not deleted before.`
 				);
+			} else if (budget.name.toLowerCase() === 'general') {
+				throw new UserInputError(`You can't delete the 'General' Budget.`);
 			} else if (spendings.length >= 1) {
 				throw new UserInputError(
 					`Can't delete the required budget, because it has Spending records created with it, try to change the status to 'Cancelled' instead, to prevent inconsistent data.`
@@ -255,13 +358,17 @@ export default {
 			}
 
 			try {
-				if (user.id == fromBudget.owner && user.id == general.owner) {
+				if (fromBudget.status === 'Completed') {
+					throw new UserInputError(
+						`You can't transfer any leftover because the required budget was completed before and not have any available quantity to return.`
+					);
+				} else if (user.id == fromBudget.owner && user.id == general.owner) {
 					const leftover = fromBudget.quantity - fromBudget.spended;
 
 					const addLeftoverSpending = new Spending({
 						name: 'Leftover Return',
 						description: `Return of '${fromBudget.currency}.${leftover}' from Budget: '${fromBudget.name}', to Budget: 'General' as Leftover`,
-						date: dayjs(date).format('YYYY-MM-DD'),
+						date: dayjs().format('YYYY-MM-DD'),
 						toBudget: fromId,
 						spended: leftover,
 						creator: user.id,

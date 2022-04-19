@@ -2,7 +2,10 @@ import Budget from '../../models/Budget';
 import Spending from '../../models/Spending';
 import checkAuth from '../../utils/checkAuth';
 import dayjs from 'dayjs';
-import { AuthenticationError, UserInputError } from 'apollo-server-core';
+import {
+	AuthenticationError,
+	UserInputError,
+} from 'apollo-server-core';
 
 export default {
 	Query: {
@@ -123,7 +126,9 @@ export default {
 				const start = dayjs(startDate)
 					.startOf('day')
 					.format('YYYY-MM-DD HH:mm');
-				const end = dayjs(endDate).endOf('day').format('YYYY-MM-DD HH:mm');
+				const end = dayjs(endDate)
+					.endOf('day')
+					.format('YYYY-MM-DD HH:mm');
 
 				const spendings = await Spending.find({
 					$and: [

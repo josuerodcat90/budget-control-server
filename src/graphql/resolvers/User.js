@@ -18,7 +18,7 @@ function generateToken(user) {
 			name: user.name,
 		},
 		process.env.SECRET_KEY,
-		{ expiresIn: '1h' } ///FIXME: return the expire time to 1h
+		{ expiresIn: '72h' } ///FIXME: return the expire time to 1h
 	);
 }
 
@@ -61,7 +61,10 @@ export default {
 				token,
 			};
 		},
-		async createUser(_, { input: { name, email, password, confirmPassword } }) {
+		async createUser(
+			_,
+			{ input: { name, email, password, confirmPassword } }
+		) {
 			const { valid, errors } = validateUserRegisterInput(
 				name,
 				email,

@@ -28,8 +28,6 @@ export default gql`
 	input editBudgetInput {
 		name: String!
 		quantity: Float!
-		currency: String!
-		status: String!
 	}
 
 	type Mutation {
